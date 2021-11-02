@@ -24,10 +24,11 @@ async def on_message(message):
     return
 
   msg = message.content.lower()
+  message_unaltered = message.content
   author = str(message.author)
   global previous_message
 
-  if previous_message == msg and msg in good_words:
+  if previous_message == msg and ((msg in good_words) or (message == "$beg")):
     await message.channel.send("Message unoriginal! -20 social credits!!")
     db[author] = str(int(db[author]) - 20)
   elif msg in good_words:
@@ -75,12 +76,20 @@ async def on_message(message):
   
   if msg.startswith("$beg"):
     num = random.randrange(0, 10)
-    print(num)
     if num == 5:
-      db[author] = str(int(db[author]) + 100)
-      await message.channel.send("Xi Jinping has blessed you with 100 social credits!")
+      db[author] = str(int(db[author]) + 50)
+      await message.channel.send("Xi Jinping has blessed you with 50 social credits!")
     else:
       await message.channel.send("Xi Jinping ignores your request.")
+
+  if msg.startswith("$balof"):
+    user = message_unaltered.replace("$balof ", "")
+    print(user)
+    #try:
+    await message.channel.send("User balance: " + db[str(user)])
+    #except:
+    #  await message.channel.send("User dosen't exist")
+
 
   if msg.startswith("$users"):
     await message.channel.send(db.keys())
