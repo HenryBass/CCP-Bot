@@ -97,13 +97,23 @@ async def on_message(message):
     except:
       await message.channel.send("User dosen't exist")
 
+  if msg.startswith("$send"):
+    user = message_unaltered.replace("$send ", "")
+    try:
+      db[author] = str(int(db[author]) - 100)
+      db[user] = str(int(db[user]) + 100)
+      await message.channel.send("Transfered 100 credits.")
+      await message.channel.send("New user balance: " + db[str(user)])
+    except:
+      await message.channel.send("User dosen't exist")
+
 
   if msg.startswith("$users"):
     await message.channel.send(db.keys())
 
   if msg.startswith("$help"):
     await message.channel.send(
-      "Use $score to see your social credit score\n\nUse $create to create an account\n\nUse $lotto to try the lottery\n\nUse $users to see all users\n\nDo good things to gain points, do bad things to lose them.\n\nUse $beg to beg Xi Jinping for social credits\n\nUse $balof + a username to find their balance.\n\n***THE CCP STANDS WITH YOU!***"
+      "Use $score to see your social credit score\n\nUse $create to create an account\n\nUse $lotto to try the lottery\n\nUse $users to see all users\n\nDo good things to gain points, do bad things to lose them.\n\nUse $beg to beg Xi Jinping for social credits\n\nUse $balof + a username to find their balance.\n\nUse $send + a username to send them 100 credits.\n\n***THE CCP STANDS WITH YOU!***"
     )
 
 keepup()
