@@ -6,9 +6,9 @@ import random
 
 client = discord.Client()
 
-good_words = ["hail ccp", "taiwan is not a country", "hail xi jinping", "hail the ccp", "i love china", "long live the ccp"]
+good_words = ["hail ccp", "taiwan is not a country", "hail xi jinping", "hail the ccp", "i love china", "long live the ccp", "i love the ccp", "i love china"]
 swear_words = ["fuck", "shit", "pussy", "crap", "free speach"]
-bad_words = ["taiwan is a country", "human rights", "capitalism", "winnie the pooh", "tibet is a part of china"]
+bad_words = ["taiwan is a country", "human rights", "capitalism", "winnie the pooh", "tibet is a part of china", "uwu"]
 sad_words = ["sad", "depressed", "bad", "sucks", "bored", "awful"]
 happy_words = ["happy", "glad", "good", "great", "awesome"]
 
@@ -28,17 +28,31 @@ async def on_message(message):
   author = str(message.author)
   global previous_message
 
-  if previous_message == msg:
+  if author not in db.keys():
+    await message.channel.send("You don't seem to have an CCP account!\nUse the create command with the $ prefix to make one!")
+
+  elif previous_message == msg:
     await message.channel.send("Message unoriginal! -20 social credits!!")
     db[author] = str(int(db[author]) - 20)
+  
   elif msg in good_words:
     await message.channel.send("ALL HAIL CCP! +10 social credits!!")
     db[author] = str(int(db[author]) + 10)
     previous_message = msg
-    print(previous_message, msg)
+
   elif any(word in msg for word in swear_words):
     await message.channel.send("No swearing! -25 social credits!!")
     db[author] = str(int(db[author]) - 25)
+    previous_message = msg
+
+  elif any(word in msg for word in sad_words):
+    await message.channel.send("Uhoh, sombody's in a bad mood! -5 social credits!!")
+    db[author] = str(int(db[author]) - 5)
+    previous_message = msg
+
+  elif any(word in msg for word in happy_words):
+    await message.channel.send("That's the spirit! +5 social credits!!")
+    db[author] = str(int(db[author]) + 5)
     previous_message = msg
 
   try:
@@ -46,18 +60,8 @@ async def on_message(message):
       await message.channel.send("Negative social credit score detected. SHAME!! SHAME!! SHAME!!")
   except:
     pass
-  
-  if any(word in msg for word in sad_words):
-    await message.channel.send("Uhoh, sombody's in a bad mood! -5 social credits!!")
-    db[author] = str(int(db[author]) - 5)
-
-  if any(word in msg for word in happy_words):
-    await message.channel.send("That's the spirit! +5 social credits!!")
-    db[author] = str(int(db[author]) + 5)
 
   if any(word in msg for word in bad_words):
-    if author not in db.keys():
-      await message.channel.send("You don't seem to have an CCP account!\nUse the create command with the $ prefix to make one!")
     await message.channel.send("That's not very good! -50 social credits!!")
     db[author] = str(int(db[author]) - 25)
   
