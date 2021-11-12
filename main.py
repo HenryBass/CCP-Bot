@@ -3,11 +3,14 @@ import os
 from replit import db
 from keepup import keepup
 import random
+import re
 
 client = discord.Client()
 
-good_words = ["hail ccp", "taiwan is not a country", "hail xi jinping", "hail the ccp", "i love china", "long live the ccp", "i love the ccp", "i love china"]
-swear_words = ["fuck", "shit", "pussy", "crap", "free speach"]
+longliveccp = u'中国共产党万岁'
+
+good_words = ["hail ccp", "taiwan is not a country", "hail xi jinping", "hail the ccp", "i love china", "long live the ccp", "i love the ccp", longliveccp]
+swear_words = ["fuck", "shit", "'I'd rather not even type some of these", "crap", "free speach"]
 bad_words = ["taiwan is a country", "human rights", "capitalism", "winnie the pooh", "tibet is a part of china", "uwu"]
 sad_words = ["sad", "depressed", "bad", "sucks", "bored", "awful"]
 happy_words = ["happy", "glad", "good", "great", "awesome"]
@@ -41,11 +44,19 @@ async def on_message(message):
     previous_message = msg
 
   elif any(word in msg for word in swear_words):
+    try:
+      await message.delete()
+    except:
+      pass
     await message.channel.send("No swearing! -25 social credits!!")
     db[author] = str(int(db[author]) - 25)
     previous_message = msg
 
   elif any(word in msg for word in sad_words):
+    try:
+      await message.delete()
+    except:
+      pass
     await message.channel.send("Uhoh, sombody's in a bad mood! -5 social credits!!")
     db[author] = str(int(db[author]) - 5)
     previous_message = msg
@@ -54,14 +65,30 @@ async def on_message(message):
     await message.channel.send("That's the spirit! +5 social credits!!")
     db[author] = str(int(db[author]) + 5)
     previous_message = msg
+  elif msg.startswith("$beg"):  
+    num = random.randrange(0, 10)
+    if num == 5:
+      db[author] = str(int(db[author]) + 50)
+      await message.channel.send("Xi Jinping has blessed you with 50 social credits!")
+    else:
+      await message.channel.send("Xi Jinping ignores your request.")
+    previous_message = msg
 
   try:
-    if int(db[author]) <= 0:
+    if int(db[author]) < 0:
+      try:
+        await message.delete()
+      except:
+        pass
       await message.channel.send("Negative social credit score detected. SHAME!! SHAME!! SHAME!!")
   except:
     pass
 
   if any(word in msg for word in bad_words):
+    try:
+      await message.delete()
+    except:
+      pass
     await message.channel.send("That's not very good! -50 social credits!!")
     db[author] = str(int(db[author]) - 25)
   
@@ -98,11 +125,20 @@ async def on_message(message):
       await message.channel.send("User dosen't exist")
 
   if msg.startswith("$send"):
-    user = message_unaltered.replace("$send ", "")
+
+    user = re.search("^.{3,32}#[0-9]{4}$", message_unaltered)
+    #user = user.group(0)
+
+    message_unaltered.replace("$send ", "")
+    message_unaltered.replace(user, "")
+    ammount = message_unaltered
+        
     try:
-      db[author] = str(int(db[author]) - 100)
-      db[user] = str(int(db[user]) + 100)
-      await message.channel.send("Transfered 100 credits.")
+      db[author] = str(int(db[author]) - int(ammount))
+      db[user] = str(int(db[user]) + int(ammount))
+
+      await message.channel.send("Transfered " + ammount + " credits.")
+      
       await message.channel.send("New user balance: " + db[str(user)])
     except:
       await message.channel.send("User dosen't exist")
@@ -110,10 +146,15 @@ async def on_message(message):
 
   if msg.startswith("$users"):
     await message.channel.send(db.keys())
+  
+  if msg.startswith("$forgiveness"):
+    await message.channel.send("Forgiven. Account Reset")
+    db[author] = str(0)
+
 
   if msg.startswith("$help"):
     await message.channel.send(
-      "Use $score to see your social credit score\n\nUse $create to create an account\n\nUse $lotto to try the lottery\n\nUse $users to see all users\n\nDo good things to gain points, do bad things to lose them.\n\nUse $beg to beg Xi Jinping for social credits\n\nUse $balof + a username to find their balance.\n\nUse $send + a username to send them 100 credits.\n\n***THE CCP STANDS WITH YOU!***"
+      "Use $score to see your social credit score\n\nUse $create to create an account\n\nUse $lotto to try the lottery\n\nUse $users to see all users\n\nDo good things to gain points, do bad things to lose them.\n\nUse $beg to beg Xi Jinping for social credits\n\nUse $balof + a username to find their balance.\n\nUse $send + a username to send them 100 credits.\n\nUse $forgiveness to reset your account to 0.\n\n***THE CCP STANDS WITH YOU!***"
     )
 
 keepup()
