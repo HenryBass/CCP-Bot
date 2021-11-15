@@ -3,7 +3,6 @@ import os
 from replit import db
 from keepup import keepup
 import random
-import re
 
 client = discord.Client()
 
@@ -126,18 +125,13 @@ async def on_message(message):
 
   if msg.startswith("$send"):
 
-    user = re.search("^.{3,32}#[0-9]{4}$", message_unaltered)
-    #user = user.group(0)
+    user = message_unaltered.replace("$send ", "")
 
-    message_unaltered.replace("$send ", "")
-    message_unaltered.replace(user, "")
-    ammount = message_unaltered
-        
     try:
-      db[author] = str(int(db[author]) - int(ammount))
-      db[user] = str(int(db[user]) + int(ammount))
+      db[author] = str(int(db[author]) - int(50))
+      db[user] = str(int(db[user]) + int(50))
 
-      await message.channel.send("Transfered " + ammount + " credits.")
+      await message.channel.send("Transfered 50 credits.")
       
       await message.channel.send("New user balance: " + db[str(user)])
     except:
